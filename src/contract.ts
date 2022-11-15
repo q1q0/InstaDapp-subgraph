@@ -4,10 +4,10 @@ import {
   updateOwnerLog,
   updateWhitelistLog
 } from "../generated/Contract/Contract"
-import { Flashloan, Amount, Log } from "../generated/schema"
+import { Flashloan, Amount } from "../generated/schema"
 import TokenList from "./config"
 
-function getAmount(id : Bytes): Amount {
+function loadAmount(id : Bytes): Amount {
   let amount = Amount.load(id)
   if(!amount) {
     amount = new Amount(id)
@@ -15,6 +15,19 @@ function getAmount(id : Bytes): Amount {
     amount.fee = new BigInt(0)
   }
   return amount;
+}
+
+function getAmountFromTokenInFlashloan(amountList: BigInt[], tokenList: Bytes[], filterToken: string): BigInt {
+  let len = tokenList.length;
+  let res = new BigInt(0)
+  for(let i = 0; i < len; i++) {
+    if(tokenList[i].equals(Bytes.fromHexString(filterToken))) {
+      res = amountList[i]
+      break;
+    }
+  }
+
+  return res;
 }
 
 export function handleLogFlashloan(event: LogFlashloan): void {
@@ -41,10 +54,10 @@ export function handleLogFlashloan(event: LogFlashloan): void {
   let wethAddr: string = TokenList.main.weth.address
   let usdtAddr: string = TokenList.main.usdt.address
   let daiAddr: string = TokenList.main.dai.address
-  let usdcAmount = getAmount(event.params.account.concat(Bytes.fromHexString(usdcAddr)))
-  let wethAmount = getAmount(event.params.account.concat(Bytes.fromHexString(wethAddr)))
-  let usdtAmount = getAmount(event.params.account.concat(Bytes.fromHexString(usdtAddr)))
-  let daiAmount = getAmount(event.params.account.concat(Bytes.fromHexString(daiAddr)))
+  let usdcAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(usdcAddr)))
+  let wethAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(wethAddr)))
+  let usdtAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(usdtAddr)))
+  let daiAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(daiAddr)))
 
   for(let i = 0; i < event.params.tokens.length; i++) {
     if (event.params.tokens[i].equals(Bytes.fromHexString(usdcAddr))) {
@@ -74,39 +87,28 @@ export function handleLogFlashloan(event: LogFlashloan): void {
     let tx = receipt.logs;
     if(tx) {
       let length = tx.length
-      const ids: Bytes[] = []
       for(let i = 0; i < length; i++) {
-        const id = receipt.blockHash.concat(Bytes.fromByteArray(Bytes.fromU64(i)))
-        let logEntity = Log.load(id);
-        if(!logEntity) {
-          logEntity = new Log(id)
-        }
-        logEntity.blockHash = tx[i].blockHash
-        logEntity.address = tx[i].address
-        logEntity.topics = tx[i].topics
-        logEntity.data = tx[i].data
-        logEntity.logType = tx[i].logType
-        logEntity.transactionLogIndex = tx[i].transactionLogIndex
-        logEntity.logIndex = tx[i].logIndex
-        logEntity.transactionHash = tx[i].transactionHash
-        logEntity.blockNumber = tx[i].blockNumber
-        logEntity.save()
-        ids.push(id)
-
         let topics = tx[i].topics;
         if(topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC)) && topics[2].toHex().toLowerCase() === TokenList.main.InstaFlashAggregator.toLowerCase()) {
           if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdc.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
-            usdcfee = usdcfee.plus(BigInt.fromString(tx[i].data.toHex()).div(BigInt.fromU32(10).pow(TokenList.main.usdc.decimal)))
+            usdcfee = usdcfee.plus(BigInt.fromString(tx[i].data.toHex())
+                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdc.address))
+                      .div(BigInt.fromU32(10).pow(TokenList.main.usdc.decimal)))
           } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.weth.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
-            wethfee = wethfee.plus(BigInt.fromString(tx[i].data.toHex()).div(BigInt.fromU32(10).pow(TokenList.main.weth.decimal)))
+            wethfee = wethfee.plus(BigInt.fromString(tx[i].data.toHex())
+                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.weth.address))
+                      .div(BigInt.fromU32(10).pow(TokenList.main.weth.decimal)))
           } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdt.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
-            usdtfee = usdtfee.plus(BigInt.fromString(tx[i].data.toHex()).div(BigInt.fromU32(10).pow(TokenList.main.usdt.decimal)))
+            usdtfee = usdtfee.plus(BigInt.fromString(tx[i].data.toHex())
+                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdt.address))
+                      .div(BigInt.fromU32(10).pow(TokenList.main.usdt.decimal)))
           } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.dai.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
-            daifee = daifee.plus(BigInt.fromString(tx[i].data.toHex()).div(BigInt.fromU32(10).pow(TokenList.main.dai.decimal)))
+            daifee = daifee.plus(BigInt.fromString(tx[i].data.toHex())
+                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.dai.address))
+                      .div(BigInt.fromU32(10).pow(TokenList.main.dai.decimal)))
           }
         }
       }
-      entity.logs = ids;
     }
   }
 
