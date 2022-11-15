@@ -1,0 +1,27 @@
+type Flashloan @entity {
+  id: Bytes!
+  account: Bytes! # address
+  eth: Amount
+  usdc: Amount
+  logs: [Log!]
+}
+
+type Log @entity {
+  id: Bytes!
+  address: Bytes
+  topics:[Bytes!]
+  data: Bytes
+  blockHash: Bytes
+  blockNumber: Bytes
+  transactionHash: Bytes
+  transactionIndex: BigInt
+  logIndex: BigInt
+  transactionLogIndex: BigInt
+  logType: String
+}
+
+type Amount @entity {
+  id: Bytes!
+  vol: BigInt
+  fee: BigInt
+}
