@@ -6,6 +6,8 @@ class Token {
 class TokenType {
   usdc: Token
   weth: Token
+  usdt: Token
+  dai: Token
   InstaFlashAggregator: string
 }
 
@@ -28,6 +30,14 @@ const TokenList: TokenObj = {
       address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       decimal: 18
     },
+    usdt: {
+      address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      decimal: 6
+    },
+    dai: {
+      address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      decimal: 18
+    },
     InstaFlashAggregator: "0x619Ad2D02dBeE6ebA3CDbDA3F98430410e892882"
   },
   polygon: {
@@ -36,6 +46,14 @@ const TokenList: TokenObj = {
       decimal: 18
     },
     weth: {
+      address: "",
+      decimal: 18
+    },
+    usdt: {
+      address: "",
+      decimal: 6
+    },
+    dai: {
       address: "",
       decimal: 18
     },
@@ -50,6 +68,14 @@ const TokenList: TokenObj = {
       address: "",
       decimal: 18
     },
+    usdt: {
+      address: "",
+      decimal: 6
+    },
+    dai: {
+      address: "",
+      decimal: 18
+    },
     InstaFlashAggregator: "0x1f882522DF99820dF8e586b6df8bAae2b91a782d"
   },
   avalanch: {
@@ -58,6 +84,14 @@ const TokenList: TokenObj = {
       decimal: 18
     },
     weth: {
+      address: "",
+      decimal: 18
+    },
+    usdt: {
+      address: "",
+      decimal: 6
+    },
+    dai: {
       address: "",
       decimal: 18
     },
@@ -72,6 +106,14 @@ const TokenList: TokenObj = {
       address: "",
       decimal: 18
     },
+    usdt: {
+      address: "",
+      decimal: 6
+    },
+    dai: {
+      address: "",
+      decimal: 18
+    },
     InstaFlashAggregator: "0x84e6b05a089d5677a702cf61dc14335b4be5b282"
   },
   fantom: {
@@ -80,6 +122,14 @@ const TokenList: TokenObj = {
       decimal: 18
     },
     weth: {
+      address: "",
+      decimal: 18
+    },
+    usdt: {
+      address: "",
+      decimal: 6
+    },
+    dai: {
       address: "",
       decimal: 18
     },
