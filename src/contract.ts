@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts"
+import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts"
 import {
   LogFlashloan,
   updateOwnerLog,
@@ -17,7 +17,7 @@ function loadAmount(id : Bytes): Amount {
   return amount;
 }
 
-function getAmountFromTokenInFlashloan(amountList: BigInt[], tokenList: Bytes[], filterToken: string): BigInt {
+function getAmountFromTokenInFlashloan(amountList: BigInt[], tokenList: Address[], filterToken: string): BigInt {
   let len = tokenList.length;
   let res = new BigInt(0)
   for(let i = 0; i < len; i++) {

@@ -87,57 +87,8 @@ export class Flashloan extends Entity {
     }
   }
 
-  get logs(): Array<Bytes> | null {
-    let value = this.get("logs");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytesArray();
-    }
-  }
-
-  set logs(value: Array<Bytes> | null) {
-    if (!value) {
-      this.unset("logs");
-    } else {
-      this.set("logs", Value.fromBytesArray(<Array<Bytes>>value));
-    }
-  }
-}
-
-export class Log extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Log entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type Log must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Log", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static load(id: Bytes): Log | null {
-    return changetype<Log | null>(store.get("Log", id.toHexString()));
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    return value!.toBytes();
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-
-  get address(): Bytes | null {
-    let value = this.get("address");
+  get usdt(): Bytes | null {
+    let value = this.get("usdt");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -145,33 +96,16 @@ export class Log extends Entity {
     }
   }
 
-  set address(value: Bytes | null) {
+  set usdt(value: Bytes | null) {
     if (!value) {
-      this.unset("address");
+      this.unset("usdt");
     } else {
-      this.set("address", Value.fromBytes(<Bytes>value));
+      this.set("usdt", Value.fromBytes(<Bytes>value));
     }
   }
 
-  get topics(): Array<Bytes> | null {
-    let value = this.get("topics");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytesArray();
-    }
-  }
-
-  set topics(value: Array<Bytes> | null) {
-    if (!value) {
-      this.unset("topics");
-    } else {
-      this.set("topics", Value.fromBytesArray(<Array<Bytes>>value));
-    }
-  }
-
-  get data(): Bytes | null {
-    let value = this.get("data");
+  get dai(): Bytes | null {
+    let value = this.get("dai");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -179,130 +113,11 @@ export class Log extends Entity {
     }
   }
 
-  set data(value: Bytes | null) {
+  set dai(value: Bytes | null) {
     if (!value) {
-      this.unset("data");
+      this.unset("dai");
     } else {
-      this.set("data", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get blockHash(): Bytes | null {
-    let value = this.get("blockHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set blockHash(value: Bytes | null) {
-    if (!value) {
-      this.unset("blockHash");
-    } else {
-      this.set("blockHash", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get blockNumber(): Bytes | null {
-    let value = this.get("blockNumber");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set blockNumber(value: Bytes | null) {
-    if (!value) {
-      this.unset("blockNumber");
-    } else {
-      this.set("blockNumber", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get transactionHash(): Bytes | null {
-    let value = this.get("transactionHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set transactionHash(value: Bytes | null) {
-    if (!value) {
-      this.unset("transactionHash");
-    } else {
-      this.set("transactionHash", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get transactionIndex(): BigInt | null {
-    let value = this.get("transactionIndex");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set transactionIndex(value: BigInt | null) {
-    if (!value) {
-      this.unset("transactionIndex");
-    } else {
-      this.set("transactionIndex", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get logIndex(): BigInt | null {
-    let value = this.get("logIndex");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set logIndex(value: BigInt | null) {
-    if (!value) {
-      this.unset("logIndex");
-    } else {
-      this.set("logIndex", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get transactionLogIndex(): BigInt | null {
-    let value = this.get("transactionLogIndex");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set transactionLogIndex(value: BigInt | null) {
-    if (!value) {
-      this.unset("transactionLogIndex");
-    } else {
-      this.set("transactionLogIndex", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get logType(): string | null {
-    let value = this.get("logType");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set logType(value: string | null) {
-    if (!value) {
-      this.unset("logType");
-    } else {
-      this.set("logType", Value.fromString(<string>value));
+      this.set("dai", Value.fromBytes(<Bytes>value));
     }
   }
 }

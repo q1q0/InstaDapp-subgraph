@@ -3,21 +3,8 @@ type Flashloan @entity {
   account: Bytes! # address
   eth: Amount
   usdc: Amount
-  logs: [Log!]
-}
-
-type Log @entity {
-  id: Bytes!
-  address: Bytes
-  topics:[Bytes!]
-  data: Bytes
-  blockHash: Bytes
-  blockNumber: Bytes
-  transactionHash: Bytes
-  transactionIndex: BigInt
-  logIndex: BigInt
-  transactionLogIndex: BigInt
-  logType: String
+  usdt: Amount
+  dai: Amount
 }
 
 type Amount @entity {
