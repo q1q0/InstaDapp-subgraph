@@ -89,6 +89,7 @@ export function handleLogFlashloan(event: LogFlashloan): void {
       let length = tx.length
       for(let i = 0; i < length; i++) {
         let topics = tx[i].topics;
+        
         if(topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC)) && topics[2].toHex().toLowerCase() === TokenList.main.InstaFlashAggregator.toLowerCase()) {
           if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdc.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
             usdcfee = usdcfee.plus(BigInt.fromString(tx[i].data.toHex())
@@ -109,6 +110,9 @@ export function handleLogFlashloan(event: LogFlashloan): void {
           }
         }
       }
+      entity.topic = tx[0].topics[1];
+      entity.Hex = tx[0].topics[1].toHex();
+      entity.testString = tx[0].topics[1].toString()
     }
   }
 
