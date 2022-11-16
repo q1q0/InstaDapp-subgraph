@@ -73,28 +73,18 @@ export function handleLogFlashloan(event: LogFlashloan): void {
 
   for (let i = 0; i < event.params.tokens.length; i++) {
     if (event.params.tokens[i].equals(Address.fromHexString(usdcAddr))) {
-      usdcvol = usdcvol.plus(event.params.amounts[i]);
+      usdcvol = event.params.amounts[i];
     }
     if (event.params.tokens[i].equals(Address.fromHexString(wethAddr))) {
-      wethvol = wethvol.plus(event.params.amounts[i]);
+      wethvol = event.params.amounts[i];
     }
     if (event.params.tokens[i].equals(Address.fromHexString(usdtAddr))) {
-      usdtvol = usdtvol.plus(event.params.amounts[i]);
+      usdtvol = event.params.amounts[i];
     }
     if (event.params.tokens[i].equals(Address.fromHexString(daiAddr))) {
-      daivol = daivol.plus(event.params.amounts[i]);
+      daivol = event.params.amounts[i];
     }
   }
-
-  let tmpUSDC = usdcAmount.vol!;
-  let tmpUSDT = usdtAmount.vol!;
-  let tmpWETH = wethAmount.vol!;
-  let tmpDAI = daiAmount.vol!;
-
-  usdcAmount.vol = tmpUSDC.plus(usdcvol);
-  wethAmount.vol = tmpWETH.plus(wethvol);
-  usdtAmount.vol = tmpUSDT.plus(usdtvol);
-  daiAmount.vol = tmpDAI.plus(daivol);
 
   let receipt = event.receipt;
 
@@ -110,54 +100,41 @@ export function handleLogFlashloan(event: LogFlashloan): void {
 
         if (topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC))) {
           let topic2 = ethereum.decode("address", topics[2])!;
+          let data = ethereum.decode("uint256", tx[i].data)!;
+          let topic1 = ethereum.decode("address", topics[1])!;
           if (
             topic2
               .toAddress()
-              .equals(Bytes.fromHexString(TokenList.main.InstaFlashAggregator))
+              .equals(Address.fromHexString(TokenList.main.InstaFlashAggregator))
           ) {
-            let data = ethereum.decode("uint256", tx[i].data)!;
-            let topic1 = ethereum.decode("address", topics[1])!;
-
             if (
               tx[i].address.equals(
-                Bytes.fromHexString(TokenList.main.usdc.address)
+                Address.fromHexString(TokenList.main.usdc.address)
               ) &&
               topic1.toAddress().equals(event.params.account)
             ) {
-              usdcfee = usdcfee.plus(
-                data.toBigInt()
-                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdc.address))
-              );
+              usdcfee = data.toBigInt().minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdc.address));
             } else if (
               tx[i].address.equals(
-                Bytes.fromHexString(TokenList.main.weth.address)
+                Address.fromHexString(TokenList.main.weth.address)
               ) &&
               topic1.toAddress().equals(event.params.account)
             ) {
-              wethfee = wethfee.plus(
-                data.toBigInt()
-                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.weth.address))
-              );
+              wethfee = data.toBigInt().minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.weth.address));
             } else if (
               tx[i].address.equals(
-                Bytes.fromHexString(TokenList.main.usdt.address)
+                Address.fromHexString(TokenList.main.usdt.address)
               ) &&
               topic1.toAddress().equals(event.params.account)
             ) {
-              usdtfee = usdtfee.plus(
-                data.toBigInt()
-                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdt.address))
-              );
+              usdtfee = data.toBigInt().minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdt.address));
             } else if (
               tx[i].address.equals(
-                Bytes.fromHexString(TokenList.main.dai.address)
+                Address.fromHexString(TokenList.main.dai.address)
               ) &&
               topic1.toAddress().equals(event.params.account)
             ) {
-              daifee = daifee.plus(
-                data.toBigInt()
-                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.dai.address))
-              );
+              daifee = data.toBigInt().minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.dai.address));
             }
           }
         }
@@ -165,10 +142,25 @@ export function handleLogFlashloan(event: LogFlashloan): void {
     }
   }
 
-  usdcAmount.fee = usdcfee;
-  wethAmount.fee = wethfee;
-  usdtAmount.fee = usdtfee;
-  daiAmount.fee = daifee;
+  let volUSDC = usdcAmount.vol!;
+  let volUSDT = usdtAmount.vol!;
+  let volWETH = wethAmount.vol!;
+  let volDAI = daiAmount.vol!;
+
+  let feeUSDC = usdcAmount.fee!;
+  let feeUSDT = usdtAmount.fee!;
+  let feeWETH = wethAmount.fee!;
+  let feeDAI = daiAmount.fee!;
+
+  usdcAmount.vol = volUSDC.plus(usdcvol);
+  wethAmount.vol = volWETH.plus(wethvol);
+  usdtAmount.vol = volUSDT.plus(usdtvol);
+  daiAmount.vol = volDAI.plus(daivol);
+
+  usdcAmount.fee = feeUSDC.plus(usdcfee);
+  wethAmount.fee = feeWETH.plus(wethfee);
+  usdtAmount.fee = feeUSDT.plus(usdtfee);
+  daiAmount.fee = feeDAI.plus(daifee);
 
   usdcAmount.save();
   wethAmount.save();
