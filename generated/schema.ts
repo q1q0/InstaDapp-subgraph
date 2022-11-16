@@ -120,6 +120,91 @@ export class Flashloan extends Entity {
       this.set("dai", Value.fromBytes(<Bytes>value));
     }
   }
+
+  get topic(): string | null {
+    let value = this.get("topic");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set topic(value: string | null) {
+    if (!value) {
+      this.unset("topic");
+    } else {
+      this.set("topic", Value.fromString(<string>value));
+    }
+  }
+
+  get Hex(): string | null {
+    let value = this.get("Hex");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set Hex(value: string | null) {
+    if (!value) {
+      this.unset("Hex");
+    } else {
+      this.set("Hex", Value.fromString(<string>value));
+    }
+  }
+
+  get hexString(): string | null {
+    let value = this.get("hexString");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set hexString(value: string | null) {
+    if (!value) {
+      this.unset("hexString");
+    } else {
+      this.set("hexString", Value.fromString(<string>value));
+    }
+  }
+
+  get testString(): string | null {
+    let value = this.get("testString");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set testString(value: string | null) {
+    if (!value) {
+      this.unset("testString");
+    } else {
+      this.set("testString", Value.fromString(<string>value));
+    }
+  }
+
+  get testString2(): string | null {
+    let value = this.get("testString2");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set testString2(value: string | null) {
+    if (!value) {
+      this.unset("testString2");
+    } else {
+      this.set("testString2", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class Amount extends Entity {

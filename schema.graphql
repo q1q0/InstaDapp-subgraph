@@ -9,6 +9,7 @@ type Flashloan @entity {
   Hex: String
   hexString: String
   testString: String
+  testString2: String
 }
 
 type Amount @entity {

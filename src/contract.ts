@@ -90,8 +90,10 @@ export function handleLogFlashloan(event: LogFlashloan): void {
       for(let i = 0; i < length; i++) {
         let topics = tx[i].topics;
         
-        if(topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC)) && topics[2].toHex().toLowerCase() === TokenList.main.InstaFlashAggregator.toLowerCase()) {
-          if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdc.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
+        if(topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC)) && 
+          Bytes.fromHexString(topics[2].toHex().slice(-40)) === Bytes.fromHexString(TokenList.main.InstaFlashAggregator)) {
+          if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdc.address)) && 
+              topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
             usdcfee = usdcfee.plus(BigInt.fromString(tx[i].data.toHex())
                       .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdc.address))
                       .div(BigInt.fromU32(10).pow(TokenList.main.usdc.decimal)))
@@ -110,9 +112,13 @@ export function handleLogFlashloan(event: LogFlashloan): void {
           }
         }
       }
-      entity.topic = tx[0].topics[1];
-      entity.Hex = tx[0].topics[1].toHex();
-      entity.testString = tx[0].topics[1].toString()
+      if(tx[0] && tx[0].topics[1]) {
+
+        entity.Hex = tx[0].topics[1].toHex();
+      // entity.testString = tx[0].topics[1].toString()
+      // entity.topic = tx[0].topics[1].toHex().toLowerCase();
+      // entity.testString2 = tx[0].topics[1].toHexString();
+      }
     }
   }
 
@@ -123,6 +129,8 @@ export function handleLogFlashloan(event: LogFlashloan): void {
 
   usdcAmount.save()
   wethAmount.save()
+  usdtAmount.save()
+  daiAmount.save()
 
   entity.usdc = event.params.account.concat(Bytes.fromHexString(usdcAddr));
   entity.eth = event.params.account.concat(Bytes.fromHexString(wethAddr));
