@@ -91,33 +91,29 @@ export function handleLogFlashloan(event: LogFlashloan): void {
         let topics = tx[i].topics;
         
         if(topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC)) && 
-          Bytes.fromHexString(topics[2].toHex().slice(-40)) === Bytes.fromHexString(TokenList.main.InstaFlashAggregator)) {
+          Bytes.fromHexString(topics[2].toHex().slice(-40)).equals(Bytes.fromHexString(TokenList.main.InstaFlashAggregator))) {
           if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdc.address)) && 
-              topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
+              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
             usdcfee = usdcfee.plus(BigInt.fromString(tx[i].data.toHex())
                       .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdc.address))
                       .div(BigInt.fromU32(10).pow(TokenList.main.usdc.decimal)))
-          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.weth.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
+          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.weth.address)) && 
+              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
             wethfee = wethfee.plus(BigInt.fromString(tx[i].data.toHex())
                       .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.weth.address))
                       .div(BigInt.fromU32(10).pow(TokenList.main.weth.decimal)))
-          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdt.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
+          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdt.address)) && 
+              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
             usdtfee = usdtfee.plus(BigInt.fromString(tx[i].data.toHex())
                       .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdt.address))
                       .div(BigInt.fromU32(10).pow(TokenList.main.usdt.decimal)))
-          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.dai.address)) && topics[1].toHex().toLowerCase() === event.params.account.toHex().toLowerCase()) {
+          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.dai.address)) && 
+              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
             daifee = daifee.plus(BigInt.fromString(tx[i].data.toHex())
                       .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.dai.address))
                       .div(BigInt.fromU32(10).pow(TokenList.main.dai.decimal)))
           }
         }
-      }
-      if(tx[0] && tx[0].topics[1]) {
-
-        entity.Hex = tx[0].topics[1].toHex();
-      // entity.testString = tx[0].topics[1].toString()
-      // entity.topic = tx[0].topics[1].toHex().toLowerCase();
-      // entity.testString2 = tx[0].topics[1].toHexString();
       }
     }
   }

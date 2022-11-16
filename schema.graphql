@@ -5,11 +5,6 @@ type Flashloan @entity {
   usdc: Amount
   usdt: Amount
   dai: Amount
-  topic: String
-  Hex: String
-  hexString: String
-  testString: String
-  testString2: String
 }
 
 type Amount @entity {
