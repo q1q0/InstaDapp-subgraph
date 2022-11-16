@@ -1,10 +1,10 @@
 type Flashloan @entity {
   id: Bytes!
   account: Bytes! # address
-  eth: Amount
-  usdc: Amount
-  usdt: Amount
-  dai: Amount
+  eth: Amount!
+  usdc: Amount!
+  usdt: Amount!
+  dai: Amount!
 }
 
 type Amount @entity {

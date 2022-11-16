@@ -53,157 +53,40 @@ export class Flashloan extends Entity {
     this.set("account", Value.fromBytes(value));
   }
 
-  get eth(): Bytes | null {
+  get eth(): Bytes {
     let value = this.get("eth");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value!.toBytes();
   }
 
-  set eth(value: Bytes | null) {
-    if (!value) {
-      this.unset("eth");
-    } else {
-      this.set("eth", Value.fromBytes(<Bytes>value));
-    }
+  set eth(value: Bytes) {
+    this.set("eth", Value.fromBytes(value));
   }
 
-  get usdc(): Bytes | null {
+  get usdc(): Bytes {
     let value = this.get("usdc");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value!.toBytes();
   }
 
-  set usdc(value: Bytes | null) {
-    if (!value) {
-      this.unset("usdc");
-    } else {
-      this.set("usdc", Value.fromBytes(<Bytes>value));
-    }
+  set usdc(value: Bytes) {
+    this.set("usdc", Value.fromBytes(value));
   }
 
-  get usdt(): Bytes | null {
+  get usdt(): Bytes {
     let value = this.get("usdt");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value!.toBytes();
   }
 
-  set usdt(value: Bytes | null) {
-    if (!value) {
-      this.unset("usdt");
-    } else {
-      this.set("usdt", Value.fromBytes(<Bytes>value));
-    }
+  set usdt(value: Bytes) {
+    this.set("usdt", Value.fromBytes(value));
   }
 
-  get dai(): Bytes | null {
+  get dai(): Bytes {
     let value = this.get("dai");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value!.toBytes();
   }
 
-  set dai(value: Bytes | null) {
-    if (!value) {
-      this.unset("dai");
-    } else {
-      this.set("dai", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get topic(): string | null {
-    let value = this.get("topic");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set topic(value: string | null) {
-    if (!value) {
-      this.unset("topic");
-    } else {
-      this.set("topic", Value.fromString(<string>value));
-    }
-  }
-
-  get Hex(): string | null {
-    let value = this.get("Hex");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set Hex(value: string | null) {
-    if (!value) {
-      this.unset("Hex");
-    } else {
-      this.set("Hex", Value.fromString(<string>value));
-    }
-  }
-
-  get hexString(): string | null {
-    let value = this.get("hexString");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set hexString(value: string | null) {
-    if (!value) {
-      this.unset("hexString");
-    } else {
-      this.set("hexString", Value.fromString(<string>value));
-    }
-  }
-
-  get testString(): string | null {
-    let value = this.get("testString");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set testString(value: string | null) {
-    if (!value) {
-      this.unset("testString");
-    } else {
-      this.set("testString", Value.fromString(<string>value));
-    }
-  }
-
-  get testString2(): string | null {
-    let value = this.get("testString2");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set testString2(value: string | null) {
-    if (!value) {
-      this.unset("testString2");
-    } else {
-      this.set("testString2", Value.fromString(<string>value));
-    }
+  set dai(value: Bytes) {
+    this.set("dai", Value.fromBytes(value));
   }
 }
 

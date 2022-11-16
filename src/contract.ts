@@ -1,28 +1,32 @@
-import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts"
+import { BigInt, Bytes, Address, ethereum, log } from "@graphprotocol/graph-ts";
 import {
   LogFlashloan,
   updateOwnerLog,
-  updateWhitelistLog
-} from "../generated/Contract/Contract"
-import { Flashloan, Amount } from "../generated/schema"
-import TokenList from "./config"
+  updateWhitelistLog,
+} from "../generated/Contract/Contract";
+import { Flashloan, Amount } from "../generated/schema";
+import TokenList from "./config";
 
-function loadAmount(id : Bytes): Amount {
-  let amount = Amount.load(id)
-  if(!amount) {
-    amount = new Amount(id)
-    amount.vol = new BigInt(0)
-    amount.fee = new BigInt(0)
+function loadAmount(id: Bytes): Amount {
+  let amount = Amount.load(id);
+  if (!amount) {
+    amount = new Amount(id);
+    amount.vol = new BigInt(0);
+    amount.fee = new BigInt(0);
   }
   return amount;
 }
 
-function getAmountFromTokenInFlashloan(amountList: BigInt[], tokenList: Address[], filterToken: string): BigInt {
+function getAmountFromTokenInFlashloan(
+  amountList: BigInt[],
+  tokenList: Address[],
+  filterToken: string
+): BigInt {
   let len = tokenList.length;
-  let res = new BigInt(0)
-  for(let i = 0; i < len; i++) {
-    if(tokenList[i].equals(Bytes.fromHexString(filterToken))) {
-      res = amountList[i]
+  let res = new BigInt(0);
+  for (let i = 0; i < len; i++) {
+    if (tokenList[i].equals(Address.fromHexString(filterToken))) {
+      res = amountList[i];
       break;
     }
   }
@@ -35,11 +39,11 @@ export function handleLogFlashloan(event: LogFlashloan): void {
   // needs to be unique across all entities of the same type
   let entity = Flashloan.load(event.params.account);
 
-  if(!entity) {
-    entity = new Flashloan( event.params.account)
+  if (!entity) {
+    entity = new Flashloan(event.params.account);
   }
 
-  entity.account = event.params.account
+  entity.account = event.params.account;
   let usdcvol = new BigInt(0);
   let wethvol = new BigInt(0);
   let usdtvol = new BigInt(0);
@@ -50,68 +54,111 @@ export function handleLogFlashloan(event: LogFlashloan): void {
   let usdtfee = new BigInt(0);
   let daifee = new BigInt(0);
 
-  let usdcAddr: string = TokenList.main.usdc.address
-  let wethAddr: string = TokenList.main.weth.address
-  let usdtAddr: string = TokenList.main.usdt.address
-  let daiAddr: string = TokenList.main.dai.address
-  let usdcAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(usdcAddr)))
-  let wethAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(wethAddr)))
-  let usdtAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(usdtAddr)))
-  let daiAmount = loadAmount(event.params.account.concat(Bytes.fromHexString(daiAddr)))
+  let usdcAddr: string = TokenList.main.usdc.address;
+  let wethAddr: string = TokenList.main.weth.address;
+  let usdtAddr: string = TokenList.main.usdt.address;
+  let daiAddr: string = TokenList.main.dai.address;
+  let usdcAmount = loadAmount(
+    event.params.account.concat(Bytes.fromHexString(usdcAddr))
+  );
+  let wethAmount = loadAmount(
+    event.params.account.concat(Bytes.fromHexString(wethAddr))
+  );
+  let usdtAmount = loadAmount(
+    event.params.account.concat(Bytes.fromHexString(usdtAddr))
+  );
+  let daiAmount = loadAmount(
+    event.params.account.concat(Bytes.fromHexString(daiAddr))
+  );
 
-  for(let i = 0; i < event.params.tokens.length; i++) {
-    if (event.params.tokens[i].equals(Bytes.fromHexString(usdcAddr))) {
-      usdcvol = usdcvol.plus(event.params.amounts[i].div(BigInt.fromU32(10).pow(TokenList.main.usdc.decimal)))
+  for (let i = 0; i < event.params.tokens.length; i++) {
+    if (event.params.tokens[i].equals(Address.fromHexString(usdcAddr))) {
+      usdcvol = usdcvol.plus(event.params.amounts[i]);
     }
-    if (event.params.tokens[i].equals(Bytes.fromHexString(wethAddr))) {
-      wethvol = wethvol.plus(event.params.amounts[i].div(BigInt.fromU32(10).pow(TokenList.main.weth.decimal)))
+    if (event.params.tokens[i].equals(Address.fromHexString(wethAddr))) {
+      wethvol = wethvol.plus(event.params.amounts[i]);
     }
-    if (event.params.tokens[i].equals(Bytes.fromHexString(usdtAddr))) {
-      usdtvol = usdtvol.plus(event.params.amounts[i].div(BigInt.fromU32(10).pow(TokenList.main.usdt.decimal)))
+    if (event.params.tokens[i].equals(Address.fromHexString(usdtAddr))) {
+      usdtvol = usdtvol.plus(event.params.amounts[i]);
     }
-    if (event.params.tokens[i].equals(Bytes.fromHexString(daiAddr))) {
-      daivol = daivol.plus(event.params.amounts[i].div(BigInt.fromU32(10).pow(TokenList.main.dai.decimal)))
+    if (event.params.tokens[i].equals(Address.fromHexString(daiAddr))) {
+      daivol = daivol.plus(event.params.amounts[i]);
     }
   }
 
-  usdcAmount.vol = usdcvol;
-  wethAmount.vol = wethvol;
-  usdtAmount.vol = usdtvol;
-  daiAmount.vol = daivol;
+  let tmpUSDC = usdcAmount.vol!;
+  let tmpUSDT = usdtAmount.vol!;
+  let tmpWETH = wethAmount.vol!;
+  let tmpDAI = daiAmount.vol!;
 
-  let receipt = event.receipt
+  usdcAmount.vol = tmpUSDC.plus(usdcvol);
+  wethAmount.vol = tmpWETH.plus(wethvol);
+  usdtAmount.vol = tmpUSDT.plus(usdtvol);
+  daiAmount.vol = tmpDAI.plus(daivol);
 
-  const TRANSFERTOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  let receipt = event.receipt;
 
-  if(receipt) {
+  const TRANSFERTOPIC =
+    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+
+  if (receipt) {
     let tx = receipt.logs;
-    if(tx) {
-      let length = tx.length
-      for(let i = 0; i < length; i++) {
+    if (tx) {
+      let length = tx.length;
+      for (let i = 0; i < length; i++) {
         let topics = tx[i].topics;
-        
-        if(topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC)) && 
-          Bytes.fromHexString(topics[2].toHex().slice(-40)).equals(Bytes.fromHexString(TokenList.main.InstaFlashAggregator))) {
-          if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdc.address)) && 
-              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
-            usdcfee = usdcfee.plus(BigInt.fromString(tx[i].data.toHex())
-                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdc.address))
-                      .div(BigInt.fromU32(10).pow(TokenList.main.usdc.decimal)))
-          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.weth.address)) && 
-              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
-            wethfee = wethfee.plus(BigInt.fromString(tx[i].data.toHex())
-                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.weth.address))
-                      .div(BigInt.fromU32(10).pow(TokenList.main.weth.decimal)))
-          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.usdt.address)) && 
-              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
-            usdtfee = usdtfee.plus(BigInt.fromString(tx[i].data.toHex())
-                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdt.address))
-                      .div(BigInt.fromU32(10).pow(TokenList.main.usdt.decimal)))
-          } else if (tx[i].address.equals(Bytes.fromHexString(TokenList.main.dai.address)) && 
-              Bytes.fromHexString(topics[1].toHex()).equals(event.params.account)) {
-            daifee = daifee.plus(BigInt.fromString(tx[i].data.toHex())
-                      .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.dai.address))
-                      .div(BigInt.fromU32(10).pow(TokenList.main.dai.decimal)))
+
+        if (topics[0].equals(Bytes.fromHexString(TRANSFERTOPIC))) {
+          let topic2 = ethereum.decode("address", topics[2])!;
+          if (
+            topic2
+              .toAddress()
+              .equals(Bytes.fromHexString(TokenList.main.InstaFlashAggregator))
+          ) {
+            let data = ethereum.decode("uint256", tx[i].data)!;
+            let topic1 = ethereum.decode("address", topics[1])!;
+
+            if (
+              tx[i].address.equals(
+                Bytes.fromHexString(TokenList.main.usdc.address)
+              ) &&
+              topic1.toAddress().equals(event.params.account)
+            ) {
+              usdcfee = usdcfee.plus(
+                data.toBigInt()
+                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdc.address))
+              );
+            } else if (
+              tx[i].address.equals(
+                Bytes.fromHexString(TokenList.main.weth.address)
+              ) &&
+              topic1.toAddress().equals(event.params.account)
+            ) {
+              wethfee = wethfee.plus(
+                data.toBigInt()
+                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.weth.address))
+              );
+            } else if (
+              tx[i].address.equals(
+                Bytes.fromHexString(TokenList.main.usdt.address)
+              ) &&
+              topic1.toAddress().equals(event.params.account)
+            ) {
+              usdtfee = usdtfee.plus(
+                data.toBigInt()
+                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.usdt.address))
+              );
+            } else if (
+              tx[i].address.equals(
+                Bytes.fromHexString(TokenList.main.dai.address)
+              ) &&
+              topic1.toAddress().equals(event.params.account)
+            ) {
+              daifee = daifee.plus(
+                data.toBigInt()
+                // .minus(getAmountFromTokenInFlashloan(event.params.amounts, event.params.tokens, TokenList.main.dai.address))
+              );
+            }
           }
         }
       }
@@ -123,16 +170,16 @@ export function handleLogFlashloan(event: LogFlashloan): void {
   usdtAmount.fee = usdtfee;
   daiAmount.fee = daifee;
 
-  usdcAmount.save()
-  wethAmount.save()
-  usdtAmount.save()
-  daiAmount.save()
+  usdcAmount.save();
+  wethAmount.save();
+  usdtAmount.save();
+  daiAmount.save();
 
   entity.usdc = event.params.account.concat(Bytes.fromHexString(usdcAddr));
   entity.eth = event.params.account.concat(Bytes.fromHexString(wethAddr));
   entity.usdt = event.params.account.concat(Bytes.fromHexString(usdtAddr));
   entity.dai = event.params.account.concat(Bytes.fromHexString(daiAddr));
-  entity.save()
+  entity.save();
 
   // Note: If a handler doesn't require existing field values, it is faster
   // _not_ to load the entity from the store. Instead, create it fresh with
